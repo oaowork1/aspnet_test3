@@ -1,0 +1,68 @@
+﻿@{
+    Layout = null;
+}
+@using TestApps.Models;
+@model List<string>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Test application #1</title>
+    <meta charset="utf-8" />
+    <style>
+        html, body {
+            padding: 0px;
+            margin: 0px;
+        }
+
+        .menu {
+            padding: 5px;
+            margin: 5px;
+            max-width: 100%;
+            height: auto;
+            overflow: hidden;
+        }
+    </style>
+    <script src="~/Scripts/jquery-3.3.1.min.js"></script>
+</head>
+<body>
+    @using (Html.BeginForm("Index", "Test", FormMethod.Post))
+    {
+        <div class="menu">
+            <div>
+                <textarea class="textBox" id="override1" name="override1"></textarea>
+                <input id="checkBox" type="checkbox" name="checkbox1">
+            </div>
+            <div>
+                <input type="submit" value="By Word Length" name="btn1" />
+                <input type="submit" value="By Substring" name="btn2" />
+            </div>
+            <span id='value1'></span>
+        </div>
+    }  
+    @{        
+    try
+    {
+        foreach (var item in (List<string>)Model)
+        {
+            <div class="item">
+                @item
+            </div>
+        }
+        
+        @*foreach (var item in (List<string>)Model)
+        {
+            
+            <script language="javascript">
+                $(function () {
+                    $("#value1").add(item);
+                    //("#value1") ="s";
+                });
+            </script>
+        }*@
+    }
+    catch (Exception e) { }
+}
+</body>
+</html>
+

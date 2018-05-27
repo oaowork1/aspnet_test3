@@ -1,0 +1,13 @@
+Api examples.
+
+http://localhost:32768/api/Editor/getCategories
+http://localhost:32768/api/Editor/getProducts
+
+http://localhost:32768/api/Editor/editCategories/6_dt
+http://localhost:32768/api/Editor/editProduct/6_price_8
+
+http://localhost:32768/api/Editor/delCategories/8
+http://localhost:32768/api/Editor/delProduct/7
+
+http://localhost:32768/api/Editor/addCategories/stp5
+http://localhost:32768/api/Editor/addProduct/one_100_2_1_hi
