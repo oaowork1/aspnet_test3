@@ -80,11 +80,15 @@ namespace ServerApp.Controllers
 
             return Ok(products);
         }
-          
+
         [System.Web.Http.HttpGet]
-        public HttpResponseMessage addCategories(string id)
+        public HttpResponseMessage addCategories(string name)
         {
-            string temp=id;
+            string temp = name;
+            if (temp.Length>100)
+            {
+                temp = temp.Substring(0, 100);
+            }
             if (!DataBase.control(temp))
             {
                 return new HttpResponseMessage()
@@ -107,32 +111,45 @@ namespace ServerApp.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public HttpResponseMessage addProduct(string id)             
+        public HttpResponseMessage addProduct(string name, string price, string count, string categoryid, string description="")             
         {
-            //name=one_price=100_count=2_cat=1_desc=
-            //one_100_2_1_
-            string temp = id;
-            if (!DataBase.control(temp))
+            //check on number;
+            try{
+                int test = Convert.ToInt32(price);
+                test = Convert.ToInt32(count);
+                test = Convert.ToInt32(categoryid);
+            } catch (Exception e)
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Non-integer parameters.")
+                };
+            }
+            
+            string description1000 = description;
+            if (description1000 == null)
+            {
+                description1000 = "";
+            }
+            if (description1000.Length > 100)
+            {
+                description1000 = description1000.Substring(0, 100);
+            }
+
+            if (!DataBase.control(name) || !DataBase.control(price) ||!DataBase.control(count) ||
+                !DataBase.control(categoryid) || !DataBase.control(description1000))
             {
                 return new HttpResponseMessage()
                 {
                     Content = new StringContent("Error. Looks like injection.")
                 };
             }
-           
-            var parts = temp.Split('_');
-            if (parts.Length != 5)
-            {
-                return new HttpResponseMessage()
-                {
-                    Content = new StringContent("Error. Uncorrect count of filed or used uncorrect symbol _")
-                };
-            }
-            temp = "'" + parts[0] + "'," +
-                parts[1] + "," +
-                parts[2] + "," +                
-                "'" + parts[4] + "',"+
-                parts[3] ;           
+
+            string temp = "'" + name + "'," +
+                price + "," +
+                count + "," +
+                "'" + description1000 + "'," +
+                categoryid;           
             
             //INSERT INTO Product ( Name, Price, Count, Description, CategoryId ) SELECT 'NewOne', 100, 5, 'ho-ho-ho', 1;
             if (!DataBase.add("Product", "Name, Price, [Count], Description, CategoryId", temp))
@@ -152,6 +169,17 @@ namespace ServerApp.Controllers
         public HttpResponseMessage delCategories(string id)
         {
             string temp = id;
+            try
+            {
+                int test = Convert.ToInt32(id);
+            }
+            catch (Exception e)
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Non-integer id-parameters.")
+                };
+            }
             if (!DataBase.control(temp))
             {
                 return new HttpResponseMessage()
@@ -175,6 +203,17 @@ namespace ServerApp.Controllers
         public HttpResponseMessage delProduct(string id)
         {
             string temp = id;
+            try
+            {
+                int test = Convert.ToInt32(id);
+            }
+            catch (Exception e)
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Non-integer id-parameters.")
+                };
+            }
             if (!DataBase.control(temp))
             {
                 return new HttpResponseMessage()
@@ -196,11 +235,22 @@ namespace ServerApp.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public HttpResponseMessage editCategories(string id)
+        public HttpResponseMessage editCategories(string id, string name)
         {
-            //UPDATE Category SET Name = 'ft' WHERE Id = 6;
-            //6_ft
-            string temp = id;
+            //UPDATE Category SET Name = 'ft' WHERE Id = 6;            
+            try
+            {
+                int test = Convert.ToInt32(id);
+            }
+            catch (Exception e)
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Non-integer id-parameters.")
+                };
+            }
+
+            string temp = name;
             if (!DataBase.control(temp))
             {
                 return new HttpResponseMessage()
@@ -208,15 +258,8 @@ namespace ServerApp.Controllers
                     Content = new StringContent("Error. Looks like injection.")
                 };
             }
-            var parts = temp.Split('_');
-            if (parts.Length != 2)
-            {
-                return new HttpResponseMessage()
-                {
-                    Content = new StringContent("Error. Uncorrect count of filed or used uncorrect symbol _")
-                };
-            }
-            if (!DataBase.update("Category", "Name", "'"+parts[1]+"'", parts[0]))
+
+            if (!DataBase.update("Category", "Name", "'" + name + "'", id))
             {
                 return new HttpResponseMessage()
                 {
@@ -230,26 +273,46 @@ namespace ServerApp.Controllers
         }
 
         [System.Web.Http.HttpGet]
-        public HttpResponseMessage editProduct(string id)
+        public HttpResponseMessage editProduct(string id, string field, string value)
         {
             //6_price_ft
-            string temp = id;
-            if (!DataBase.control(temp))
+            if (field.Equals("price") || field.Equals("count") || field.Equals("categoryid"))
+            try
+            {
+                int test = Convert.ToInt32(id);
+                test = Convert.ToInt32(value);
+            }
+            catch (Exception e)
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Non-integer parameters.")
+                };
+            }
+
+            string temp = field;
+            if (temp.Equals("categoryid"))
+            {
+                if (temp.Length > 100)
+                {
+                    temp = temp.Substring(0, 100);
+                }
+            }
+            if (field.Equals("id"))
+            {
+                return new HttpResponseMessage()
+                {
+                    Content = new StringContent("Error. Id could not be changed.")
+                };
+            }
+            if (!DataBase.control(temp) && !DataBase.control(value))
             {
                 return new HttpResponseMessage()
                 {
                     Content = new StringContent("Error. Looks like injection.")
                 };
             }
-            var parts = temp.Split('_');
-            if (parts.Length != 3)
-            {
-                return new HttpResponseMessage()
-                {
-                    Content = new StringContent("Error. Uncorrect count of filed or used uncorrect symbol _")
-                };
-            }
-            if (!DataBase.update("Product", parts[1], "'" + parts[2] + "'", parts[0]))
+            if (!DataBase.update("Product", temp, "'" + value + "'", id))
             {
                 return new HttpResponseMessage()
                 {
